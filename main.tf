@@ -69,7 +69,6 @@ module "fluentd_daemonset" {
   ecs_cluster_arn = "${var.ecs_cluster_arn}"
 
   container_definition_json = "${module.container_definition.json}"
-  container_name            = "${var.container_name}"
   task_cpu                  = "${var.task_cpu}"
   task_memory               = "${var.task_memory}"
   volumes                   = "${var.volumes}"
