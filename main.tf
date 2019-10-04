@@ -58,7 +58,7 @@ module "container_definition" {
 #############################################################
 
 module "fluentd_daemonset" {
-  source     = "git::https://github.com/aleks-fofanov/terraform-aws-ecs-service-task-daemonset?ref=tags/0.2.0"
+  source     = "git::https://github.com/aleks-fofanov/terraform-aws-ecs-service-task-daemonset?ref=tags/0.3.0"
   attributes = ["${compact(concat(var.attributes, list("fluentd")))}"]
   delimiter  = "${var.delimiter}"
   name       = "${var.name}"
