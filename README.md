@@ -80,7 +80,7 @@ This example provisions:
   and attaches it to fluentd service execution role
 ```hcl
 module "fluentd_datadog_logs_aggregator" {
-  source    = "../modules/terraform-aws-ecs-fluentd-datadog-daemonset"
+  source    = "git::https://github.com/aleks-fofanov/terraform-aws-ecs-fluentd-datadog-daemonset?ref=master"
   name      = "fluentd"
   namespace = "cp"
   stage     = "prod"
