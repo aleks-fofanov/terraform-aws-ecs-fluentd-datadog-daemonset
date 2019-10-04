@@ -145,11 +145,13 @@ variable "mount_points" {
 variable "healthcheck" {
   type        = "map"
   description = "A map containing command (string), interval (duration in seconds), retries (1-10, number of times to retry before marking container unhealthy, and startPeriod (0-300, optional grace period to wait, in seconds, before failed healthchecks count toward retries)"
-  default     = {
-    command     = [
+
+  default = {
+    command = [
       "CMD-SHELL",
-      "curl http://0.0.0.0:9880/fluentd.healthcheck?json=%7B%22log%22%3A+%22health+check%22%7D || exit 1"
+      "curl http://0.0.0.0:9880/fluentd.healthcheck?json=%7B%22log%22%3A+%22health+check%22%7D || exit 1",
     ]
+
     startPeriod = "20"
     retries     = "3"
   }
