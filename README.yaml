@@ -1,0 +1,176 @@
+---
+#
+# This is the canonical configuration for the `README.md`
+# Run `make readme` to rebuild the `README.md`
+#
+
+# Name of this project
+name: terraform-aws-ecs-fluentd-datadog-daemonset
+
+# Tags of this project
+tags:
+  - aws
+  - terraform
+  - terraform-modules
+  - ecs
+  - cluster
+  - logs
+  - fluentd
+  - datagod
+
+# Logo for this project
+#logo: docs/logo.png
+
+# License of this project
+license: "APACHE2"
+
+# Canonical GitHub repo
+github_repo: aleks-fofanov/terraform-aws-ecs-fluentd-datadog-daemonset
+
+# Badges to display
+badges:
+  - name: "Build Status"
+    image: "https://travis-ci.org/aleks-fofanov/terraform-aws-ecs-fluentd-datadog-daemonset.svg?branch=master"
+    url: "https://travis-ci.org/aleks-fofanov/terraform-aws-ecs-fluentd-datadog-daemonset"
+  - name: "Latest Release"
+    image: "https://img.shields.io/github/release/aleks-fofanov/terraform-aws-ecs-fluentd-datadog-daemonset.svg"
+    url: "https://github.com/aleks-fofanov/terraform-aws-ecs-fluentd-datadog-daemonset/releases/latest"
+
+related:
+  - name: "terraform-aws-ecs-service-task-daemonset"
+    description: "Terraform module to provision ECS service with daemon scheduling strategy"
+    url: "https://github.com/aleks-fofanov/terraform-aws-ecs-service-task-daemonset"
+  - name: "terraform-aws-ecs-cluster-traefik"
+    description: "Terraform module to provision ECS cluster with Traefik as an edge router"
+    url: "https://github.com/aleks-fofanov/terraform-aws-ecs-cluster-traefik"
+  - name: "ecs-datadog-logs-aggregator"
+    description: "Customized Fluentd image configured to be deployed AWS ECS cluster and ship containers logs to Datadog"
+    url: "https://github.com/aleks-fofanov/ecs-datadog-logs-aggregator"
+
+# Short description of this project
+description: |-
+  Terraform module to provision ECS service configured to collect logs from containers scheduled on EC2 container
+  instances and ship them to Datadog.
+
+introduction: |-
+  This module helps to provision Fluentd ECS service scheduled on every ECS container instances (EC2) as a daemon and
+  configured to ship logs to Datadog.
+
+  **Why this project**:
+  Installing Datadog agent on each node in your ECS cluster may not be an option for some users
+  as this can be expensive depending on the number of nodes in the cluster.
+
+  **Implementation notes and Warnings**:
+  - Don't forget to pass `Datadog API key` via env variables or secrets (recommended)
+  - Pefix your containers log tags with `docker.`, otherwise logs won't be processed, for example:
+    ```json
+    "logConfiguration": {
+        "logDriver": "fluentd",
+        "options": {
+            "fluentd-address": "127.0.0.1:24224",
+            "tag": "docker.backend-app"
+        }
+    }
+    ```
+
+  This module is backed by best of breed terraform modules maintained by [Cloudposse](https://github.com/cloudposse).
+
+# How to use this project
+usage: |-
+  This is a simple example of how to create an ECS cluster service scheduled with daemon scheduling strategy:
+
+  ```hcl
+  module "fluentd_datadog_logs_aggregator" {
+    source    = "git::https://github.com/aleks-fofanov/terraform-aws-ecs-fluentd-datadog-daemonset?ref=master"
+    name      = "fluentd"
+    namespace = "cp"
+    stage     = "prod"
+
+    ecs_cluster_arn = "XXXXXXXXXXX"
+  }
+  ```
+
+examples: |-
+  ### Full example
+  This example provisions:
+  - Fluentd ECS cluster log aggregator
+  - Cloudwatch log group for storing fluentd containers' logs
+  - Encrypted SSM Parameter for storing Datadog API key
+  - Additional policy that allows ECS agent access encrypted SSM parameter when creating fluentd containers
+    and attaches it to fluentd service execution role
+  ```hcl
+  module "fluentd_datadog_logs_aggregator" {
+    source    = "../modules/terraform-aws-ecs-fluentd-datadog-daemonset"
+    name      = "fluentd"
+    namespace = "cp"
+    stage     = "prod"
+
+    ecs_cluster_arn         = "XXXXXXXXXXX"
+    task_cpu                = "256"
+    task_memory             = "512"
+    task_memory_reservation = "512"
+
+    log_driver  = "awslogs"
+    log_options = {
+      "awslogs-region"        = "us-west-2"
+      "awslogs-group"         = "${aws_cloudwatch_log_group.fluentd.name}"
+      "awslogs-stream-prefix" = "fluentd"
+    }
+
+    secrets = [
+      {
+        name      = "DD_API_KEY",
+        valueFrom = "${aws_ssm_parameter.datadog_api_key.arn}"
+      }
+    ]
+  }
+
+  data "aws_iam_policy_document" "fluentd" {
+    statement {
+      sid    = "SSMParameterStoreAccess"
+      effect = "Allow"
+      actions = [
+        "ssm:GetParameters",
+        "kms:Decrypt"
+      ]
+      resources = [
+        "${data.aws_kms_key.aws_ssm.arn}",
+        "${aws_ssm_parameter.datadog_api_key.arn}"
+      ]
+    }
+  }
+
+  resource "aws_iam_policy" "fluentd_ecs_exec_role_additions" {
+    name   = "fluentd"
+    policy = "${data.aws_iam_policy_document.fluentd.json}"
+  }
+
+  resource "aws_iam_role_policy_attachment" "fluentd_ecs_exec_role_additions" {
+    role       = "${module.fluentd_datadog_logs_aggregator.task_exec_role_name}"
+    policy_arn = "${aws_iam_policy.fluentd_ecs_exec_role_additions.arn}"
+  }
+
+  resource "aws_cloudwatch_log_group" "fluentd" {
+    name = "ECS/fluentd-daemonset"
+  }
+
+  resource "aws_ssm_parameter" "datadog_api_key" {
+    name        = "/some/path/DD_API_KEY"
+    type        = "SecureString"
+    value       = "XXXXXXXXXXX"
+    overwrite   = "true"
+    description = "Datadog API key"
+
+    key_id = "XXXXXXXXXXX"
+  }
+  ```
+
+
+include:
+  - "docs/targets.md"
+  - "docs/terraform.md"
+
+# Contributors to this project
+contributors:
+  - name: "Aleksandr Fofanov"
+    github: "aleks-fofanov"
