@@ -11,7 +11,7 @@ provider "aws" {
 #############################################################
 
 module "container_definition" {
-  source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition?ref=tags/0.15.0"
+  source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition?ref=tags/0.19.0"
   container_name               = "${var.container_name}"
   container_image              = "${var.container_image}"
   container_cpu                = "${var.task_cpu}"
@@ -41,7 +41,7 @@ module "container_definition" {
       containerPort = "${var.healthcheck_port}"
       hostPort      = "${var.healthcheck_port}"
       protocol      = "tcp"
-    },
+    }
   ]
 
   log_driver  = "${var.log_driver}"
