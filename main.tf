@@ -41,7 +41,7 @@ module "container_definition" {
       containerPort = "${var.healthcheck_port}"
       hostPort      = "${var.healthcheck_port}"
       protocol      = "tcp"
-    }
+    },
   ]
 
   log_driver  = "${var.log_driver}"
