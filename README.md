@@ -163,7 +163,7 @@ Available targets:
 |------|-------------|:----:|:-----:|:-----:|
 | attributes | Additional attributes (e.g. `1`) | list | `<list>` | no |
 | command | The command that is passed to the container | list | `<list>` | no |
-| container_image | fluentd docker image to be used with deployment | string | `aleksfofanov/ecs-datadog-logs-aggregator:0.1.0` | no |
+| container_image | fluentd docker image to be used with deployment | string | `aleksfofanov/ecs-datadog-logs-aggregator:0.4.0` | no |
 | container_name | The name of the container in task definition | string | `fluentd` | no |
 | delimiter | Delimiter to be used between `name`, `namespace`, `stage`, etc. | string | `-` | no |
 | dns_servers | Container DNS servers. This is a list of strings specifying the IP addresses of the DNS servers. | list | `<list>` | no |
@@ -248,7 +248,7 @@ In general, PRs are welcome. We follow the typical "fork-and-pull" Git workflow.
 
 ## Copyright
 
-Copyright © 2017-2019 Aleksandr Fofanov
+Copyright © 2017-2020 Aleksandr Fofanov
 
 
 

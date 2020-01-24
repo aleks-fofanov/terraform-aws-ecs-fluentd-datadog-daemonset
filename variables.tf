@@ -57,7 +57,7 @@ variable "container_name" {
 variable "container_image" {
   type        = "string"
   description = "fluentd docker image to be used with deployment"
-  default     = "aleksfofanov/ecs-datadog-logs-aggregator:0.3.0"
+  default     = "aleksfofanov/ecs-datadog-logs-aggregator:0.4.0"
 }
 
 variable "task_cpu" {
